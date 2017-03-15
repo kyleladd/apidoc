@@ -56,8 +56,11 @@ define([
             if ( ! element.optional && element.defaultValue !== '') {
                 value = element.defaultValue;
             }
-            param[key] = value;
-            paramType[key] = $(element).next().text();
+            //if a value was not provided for parameter (empty string for input), do not send the parameter in the request
+            if(value !== ""){
+              param[key] = value;
+              paramType[key] = $(element).next().text();
+            }
           });
       });
 

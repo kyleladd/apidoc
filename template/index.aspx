@@ -1,3 +1,4 @@
+<%@ Page Language ="C#"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,6 +11,9 @@
   <link href="css/style.css" rel="stylesheet" media="screen, print">
   <link href="img/favicon.ico" rel="icon" type="image/x-icon">
   <script src="vendor/polyfill.js"></script>
+  <script>
+    window.user = "<%=HttpContext.Current.User.Identity.Name%>";
+  </script>
 </head>
 <body>
 
@@ -101,7 +105,7 @@
 </script>
 
 <script id="template-article" type="text/x-handlebars-template">
-  <article id="api-{{article.group}}-{{article.name}}-{{article.version}}" {{#if hidden}}class="hide"{{/if}} data-group="{{article.group}}" data-name="{{article.name}}" data-version="{{article.version}}">
+  <article id="api-{{article.group}}-{{article.name}}-{{article.version}}" {{#if hidden}}class="hide"{{else}}{{#if article.isvisible }}{{else}}class="hidden"{{/if}}{{/if}} data-group="{{article.group}}" data-name="{{article.name}}" data-version="{{article.version}}">
     <div class="pull-left">
       <h1>{{article.groupTitle}}{{#if article.title}} - {{article.title}}{{/if}}</h1>
     </div>

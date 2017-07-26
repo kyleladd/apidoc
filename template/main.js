@@ -169,36 +169,52 @@ require([
     //
     var nav = [];
     apiGroups.forEach(function(group) {
-        // Mainmenu entry
-        nav.push({
-            group: group,
-            isHeader: true,
-            title: apiGroupTitles[group]
-        });
-
+        var has_nav_group = false;
         // Submenu
         var oldName = '';
         api.forEach(function(entry) {
-            if (entry.group === group) {
-                if (oldName !== entry.name) {
-                    nav.push({
-                        title: entry.title,
-                        group: group,
-                        name: entry.name,
-                        type: entry.type,
-                        version: entry.version
-                    });
-                } else {
-                    nav.push({
-                        title: entry.title,
-                        group: group,
-                        hidden: true,
-                        name: entry.name,
-                        type: entry.type,
-                        version: entry.version
-                    });
+            //TODO-KL:make function
+            entry.isvisible = true;
+            if (entry.visibility){
+                try{
+                    if(typeof entry.visibility === "string"){
+                        entry.visibility = JSON.parse(entry.visibility);
+                    }
+                    entry.isvisible = (entry.visibility && entry.visibility.users && entry.visibility.users.indexOf(window.user)!==-1) ? true : false;
                 }
-                oldName = entry.name;
+                catch(ex){}
+            }
+            if(entry.isvisible){
+                if (entry.group === group) {
+                    // Mainmenu entry
+                    if(!has_nav_group){
+                        nav.push({
+                            group: group,
+                            isHeader: true,
+                            title: apiGroupTitles[group]
+                        });
+                        has_nav_group = true;
+                    }
+                    if (oldName !== entry.name) {
+                        nav.push({
+                            title: entry.title,
+                            group: group,
+                            name: entry.name,
+                            type: entry.type,
+                            version: entry.version
+                        });
+                    } else {
+                        nav.push({
+                            title: entry.title,
+                            group: group,
+                            hidden: true,
+                            name: entry.name,
+                            type: entry.type,
+                            version: entry.version
+                        });
+                    }
+                    oldName = entry.name;
+                }
             }
         });
     });
@@ -318,6 +334,18 @@ require([
 
         // render all articles of a group
         api.forEach(function(entry) {
+            //TODO-KL:HERE Change to function
+            entry.isvisible = true;
+            if (entry.visibility){
+                try{
+                    if(typeof entry.visibility === "string"){
+                        entry.visibility = JSON.parse(entry.visibility);
+                    }
+                    entry.isvisible = (entry.visibility && entry.visibility.users && entry.visibility.users.indexOf(window.user)!==-1) ? true : false;
+                }
+                catch(ex){
+                }
+            }
             if(groupEntry === entry.group) {
                 if (oldName !== entry.name) {
                     // determine versions
@@ -346,7 +374,6 @@ require([
                     fields.article.url = apiProject.url + fields.article.url;
 
                 addArticleSettings(fields, entry);
-
                 if (entry.groupTitle)
                     title = entry.groupTitle;
 

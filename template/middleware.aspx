@@ -63,5 +63,6 @@
     // </location>
     string json = readFile(HttpContext.Current.Server.MapPath("api_data.json"));
     var json_object = GetAPIData(json, HttpContext.Current.User.Identity.Name);
+    Response.ContentType = "text/javascript;charset=UTF-8";
     Response.Write("define({ \"api\": " + json_object + "});");
 %>

@@ -3,11 +3,11 @@
 <%@ Import Namespace="System.Collections.Generic" %>
 <%@ Import Namespace="Newtonsoft.Json" %>
 <%@ Import Namespace="Newtonsoft.Json.Linq" %>
+<%@ Import Namespace="System.Linq" %>
 <script runat="server">
     public static string readFile(string filepath){
         try
         {
-
             using (StreamReader r = new StreamReader(filepath))
             {
                 return r.ReadToEnd();
@@ -23,6 +23,7 @@
         }
         try
         {
+            var roles = Roles.GetRolesForUser(username);
             var json_object = JsonConvert.DeserializeObject<JArray>(json);
             for (int i = json_object.Count - 1; i >= 0; i--)
             {
@@ -31,7 +32,10 @@
                     try {
                         var obj = JToken.Parse(visibility_object + "");
                         if (!obj.SelectToken("users").ToObject<List<string>>().Contains(username)) {
-                            json_object.RemoveAt(i);
+                            if (!obj.SelectToken("roles").ToObject<List<string>>().Any(x => roles.Any(y => y == x)))
+                            {
+                                json_object.RemoveAt(i);
+                            }
                         }
                     }
                     catch (Exception ex) { }

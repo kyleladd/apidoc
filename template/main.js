@@ -42,7 +42,7 @@ require([
     'locales',
     'handlebarsExtended',
     './api_project.js',
-    './api_data.js',
+    'middleware.aspx?noext',
     'prettify',
     'utilsSampleRequest',
     'semver',

@@ -17,6 +17,37 @@
         return null;
     }
 
+    public static bool hasPermission(JToken article, string username, string[] roles){
+        if (article.SelectToken("visibility") != null)
+        {
+            var visibility_object = JsonConvert.DeserializeObject<JToken>((string)article["visibility"]);
+            try
+            {
+                var obj = JToken.Parse(visibility_object + "");
+                if (obj.SelectToken("deny.users") != null && obj.SelectToken("deny.users").ToObject<List<string>>().Contains(username))
+                {
+                    return false;
+                }
+                else if (obj.SelectToken("allow.users") != null && obj.SelectToken("allow.users").ToObject<List<string>>().Contains(username))
+                {
+                    return true;
+                }
+                else if (obj.SelectToken("deny.roles") != null && obj.SelectToken("deny.roles").ToObject<List<string>>().Any(x => roles.Any(y => y == x)))
+                {
+                    return false;
+                }
+                else if (obj.SelectToken("allow.roles") != null && obj.SelectToken("allow.roles").ToObject<List<string>>().Any(x => roles.Any(y => y == x)))
+                {
+                    return true;
+                }
+            }
+            catch (Exception ex) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static string GetAPIData(string json, string username){
         if (json == null) {
             return null;
@@ -29,21 +60,8 @@
 
             foreach(var article in latest_versions)
             {
-                if (article["visibility"] != null)
-                {
-                    var visibility_object = JsonConvert.DeserializeObject<JToken>((string)article["visibility"]);
-                    try
-                    {
-                        var obj = JToken.Parse(visibility_object + "");
-                        if (!obj.SelectToken("users").ToObject<List<string>>().Contains(username))
-                        {
-                            if (!obj.SelectToken("roles").ToObject<List<string>>().Any(x => roles.Any(y => y == x)))
-                            {
-                                json_object.RemoveAll(x => x.SelectToken("group")+"" == article.SelectToken("group")+"" && x.SelectToken("name")+"" == article.SelectToken("name")+"");
-                            }
-                        }
-                    }
-                    catch (Exception ex) { }
+                if(!hasPermission(article, username, roles)){
+                    json_object.RemoveAll(x => x.SelectToken("group")+"" == article.SelectToken("group")+"" && x.SelectToken("name")+"" == article.SelectToken("name")+"");
                 }
             }
             return JsonConvert.SerializeObject(json_object);

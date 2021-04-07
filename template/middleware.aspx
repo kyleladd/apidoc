@@ -40,6 +40,10 @@
                 {
                     return true;
                 }
+                else if (obj.SelectToken("private") != null)
+                {
+                    return false;
+                }
             }
             catch (Exception ex) {
                 return false;
